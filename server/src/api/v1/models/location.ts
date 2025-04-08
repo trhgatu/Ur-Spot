@@ -5,6 +5,11 @@ const locationSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    categoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    },
     address: {
         type: String,
         required: true
@@ -14,7 +19,7 @@ const locationSchema = new mongoose.Schema({
         required: true,
     },
     images: {
-        type: String,
+        type: [String],
     },
     avarageRating : {
         type: String

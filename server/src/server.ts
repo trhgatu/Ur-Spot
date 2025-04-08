@@ -16,7 +16,7 @@ const startServer = async () => {
     try {
         await connectDatabase();
         const corsOptions = {
-            origin: ["*"],
+            origin: "*",
             credentials: true,
             allowedHeaders: ["Content-Type", "Authorization"],
         };
