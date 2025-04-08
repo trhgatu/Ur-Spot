@@ -1,15 +1,17 @@
 import { motion } from "framer-motion"
-import { LocationCard } from "@/components/PlaceCard"
+import { LocationCard } from "@/components/home/LocationCard"
 import { Button } from "@/components/ui/button"
 import { Location } from "@/types/location"
+import { useCategoryStore } from "@/store/categoryStore"
 
 interface LocationsGridProps {
   locations: Location[]
-  onViewPlace: (id: string) => void
   onResetFilters: () => void
 }
 
-export function LocationsGrid({ locations, onViewPlace, onResetFilters }: LocationsGridProps) {
+export function LocationsGrid({ locations, onResetFilters }: LocationsGridProps) {
+  const { categoryList } = useCategoryStore()
+
   if (locations.length === 0) {
     return (
       <motion.div
@@ -37,20 +39,25 @@ export function LocationsGrid({ locations, onViewPlace, onResetFilters }: Locati
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {locations.map((location, index) => (
-        <motion.div
-          key={location._id}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
-          viewport={{ once: true }}
-        >
-          <LocationCard
-            {...location}
-            onClick={() => onViewPlace(location._id)}
-          />
-        </motion.div>
-      ))}
+      {locations.map((location, index) => {
+        // Find the category object by ID
+        const category = categoryList?.data?.find(cat => cat._id === location.categoryId)
+
+        return (
+          <motion.div
+            key={location._id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            viewport={{ once: true }}
+          >
+            <LocationCard
+              {...location}
+              category={category || { _id: location.categoryId, name: "Unknown", description: "", slug: "", icon: "" }}
+            />
+          </motion.div>
+        )
+      })}
     </motion.div>
   )
 }

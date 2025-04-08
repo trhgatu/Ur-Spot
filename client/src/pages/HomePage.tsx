@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react"
 import { SearchAndFilters } from "@/components/home/SearchAndFilters"
-import { LocationsGrid } from "@/components/home/PlacesGrid"
+import { LocationsGrid } from "@/components/home/LocationsGrid"
 import { Sidebar } from "@/components/home/Sidebar"
 import { useLocationStore } from "@/store/locationStore"
 import { useCategoryStore } from "@/store/categoryStore"
-
-interface HomePageProps {
-  onViewPlace?: (id: string) => void
-}
 
 const cities = [
   "Tất cả thành phố",
@@ -75,7 +71,7 @@ const districts = {
 }
 
 
-export function HomePage({ onViewPlace }: HomePageProps) {
+export function HomePage() {
   const { locationList, isLoading, error, fetchAllLocations } = useLocationStore()
   const { categoryList, isLoading: categoriesLoading, fetchAllCategories } = useCategoryStore()
   const [selectedCategory, setSelectedCategory] = useState("Tất cả")
@@ -97,11 +93,6 @@ export function HomePage({ onViewPlace }: HomePageProps) {
     return matchesCategory && matchesSearch
   }) || []
 
-  const handlePlaceClick = (id: string) => {
-    if (onViewPlace) {
-      onViewPlace(id)
-    }
-  }
 
   const handleResetFilters = () => {
     setSelectedCategory("Tất cả")
@@ -145,7 +136,6 @@ export function HomePage({ onViewPlace }: HomePageProps) {
           ) : (
             <LocationsGrid
               locations={filteredLocations}
-              onViewPlace={handlePlaceClick}
               onResetFilters={handleResetFilters}
             />
           )}

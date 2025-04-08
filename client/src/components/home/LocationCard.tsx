@@ -2,16 +2,16 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MapPin, Star } from "lucide-react"
+import { Category } from "@/types/category"
 
 interface LocationCardProps {
   _id: string
   name: string
   description: string
   images: string[]
-  category: string
   averageRating: number
   address: string
-  onClick?: () => void
+  category: Category
 }
 
 export function LocationCard({
@@ -21,14 +21,13 @@ export function LocationCard({
   category,
   averageRating,
   address,
-  onClick
 }: LocationCardProps) {
   const imageUrl = images && images.length > 0
     ? images[0]
     : "https://placehold.co/600x400/gray/white?text=No+Image";
 
   return (
-    <Card className="w-full max-w-sm overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={onClick}>
+    <Card className="w-full max-w-sm overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
       <CardHeader className="p-0">
         <img
           src={imageUrl}
@@ -39,7 +38,7 @@ export function LocationCard({
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-semibold">{name}</h3>
-          <Badge variant="secondary">{category}</Badge>
+          <Badge variant="secondary">{category.name}</Badge>
         </div>
         <p className="text-sm text-gray-600 mb-2 line-clamp-2">{description}</p>
         <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -52,10 +51,7 @@ export function LocationCard({
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button className="w-full" variant="default" onClick={(e) => {
-          e.stopPropagation();
-          if (onClick) onClick();
-        }}>
+        <Button className="w-full" variant="default">
           Xem chi tiết
         </Button>
       </CardFooter>
