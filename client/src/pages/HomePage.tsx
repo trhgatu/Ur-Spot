@@ -1,18 +1,13 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { SearchAndFilters } from "@/components/home/SearchAndFilters"
-import { PlacesGrid } from "@/components/home/PlacesGrid"
+import { LocationsGrid } from "@/components/home/PlacesGrid"
 import { Sidebar } from "@/components/home/Sidebar"
+import { useLocationStore } from "@/store/locationStore"
+import { useCategoryStore } from "@/store/categoryStore"
 
 interface HomePageProps {
   onViewPlace?: (id: string) => void
 }
-
-const categories = [
-  "Tất cả",
-  "Quán cà phê",
-  "Quán ăn",
-  "Cửa hàng",
-]
 
 const cities = [
   "Tất cả thành phố",
@@ -79,76 +74,28 @@ const districts = {
   ],
 }
 
-// Mock data - sau này sẽ được thay thế bằng API call
-const places = [
-  {
-    id: "1",
-    name: "Cộng Cà Phê",
-    description: "Quán cà phê với phong cách retro độc đáo, phục vụ cà phê và đồ uống đặc trưng.",
-    image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-    category: "Quán cà phê",
-    rating: 4.5,
-    address: "19 Nguyễn Huệ, Quận 1, TP.HCM",
-  },
-  {
-    id: "2",
-    name: "Phở 24",
-    description: "Chuỗi nhà hàng phở nổi tiếng với hương vị đặc trưng và không gian hiện đại.",
-    image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-    category: "Quán ăn",
-    rating: 4.2,
-    address: "123 Lê Lợi, Quận 1, TP.HCM",
-  },
-  {
-    id: "3",
-    name: "Vincom Center",
-    description: "Trung tâm thương mại hiện đại với nhiều cửa hàng thời trang và nhà hàng.",
-    image: "https://images.unsplash.com/photo-1567958451986-7b5f1a0f8b0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-    category: "Cửa hàng",
-    rating: 4.7,
-    address: "72 Lê Thánh Tôn, Quận 1, TP.HCM",
-  },
-  {
-    id: "4",
-    name: "Highland Coffee",
-    description: "Thương hiệu cà phê Việt Nam với không gian hiện đại, phù hợp làm việc và gặp gỡ.",
-    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-    category: "Quán cà phê",
-    rating: 4.3,
-    address: "141 Nguyễn Du, Quận 1, TP.HCM",
-  },
-  {
-    id: "5",
-    name: "Nhà hàng Đông Phương",
-    description: "Nhà hàng với các món ăn Á Đông đa dạng và không gian sang trọng.",
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-    category: "Quán ăn",
-    rating: 4.8,
-    address: "30 Lê Thánh Tôn, Quận 1, TP.HCM",
-  },
-  {
-    id: "6",
-    name: "Diamond Plaza",
-    description: "Trung tâm mua sắm cao cấp với nhiều thương hiệu quốc tế nổi tiếng.",
-    image: "https://images.unsplash.com/photo-1565361837331-f470b1adca2f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-    category: "Cửa hàng",
-    rating: 4.5,
-    address: "34 Lê Duẩn, Quận 1, TP.HCM",
-  },
-]
 
 export function HomePage({ onViewPlace }: HomePageProps) {
+  const { locationList, isLoading, error, fetchAllLocations } = useLocationStore()
+  const { categoryList, isLoading: categoriesLoading, fetchAllCategories } = useCategoryStore()
   const [selectedCategory, setSelectedCategory] = useState("Tất cả")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCity, setSelectedCity] = useState("Tất cả thành phố")
   const [selectedDistrict, setSelectedDistrict] = useState("Tất cả quận")
 
-  const filteredPlaces = places.filter((place) => {
-    const matchesCategory = selectedCategory === "Tất cả" || place.category === selectedCategory
-    const matchesSearch = place.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      place.description.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => {
+    fetchAllLocations()
+    fetchAllCategories()
+  }, [fetchAllLocations, fetchAllCategories])
+
+  const categoryNames = ["Tất cả", ...(categoryList?.allCategory?.map(category => category.name) ?? [])]
+  const filteredLocations = locationList?.allLocation?.filter((location) => {
+    const matchesCategory = selectedCategory === "Tất cả" ||
+      categoryList?.data?.find((category) => category._id === location.categoryId)?.name === selectedCategory
+    const matchesSearch = location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.description.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesCategory && matchesSearch
-  })
+  }) || []
 
   const handlePlaceClick = (id: string) => {
     if (onViewPlace) {
@@ -168,7 +115,7 @@ export function HomePage({ onViewPlace }: HomePageProps) {
       <Sidebar
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
-        categories={categories}
+        categories={categoryNames}
       />
 
       <div className="pl-64">
@@ -182,16 +129,26 @@ export function HomePage({ onViewPlace }: HomePageProps) {
             onCityChange={setSelectedCity}
             selectedDistrict={selectedDistrict}
             onDistrictChange={setSelectedDistrict}
-            categories={categories}
+            categories={categoryNames}
             cities={cities}
             districts={districts}
           />
 
-          <PlacesGrid
-            places={filteredPlaces}
-            onViewPlace={handlePlaceClick}
-            onResetFilters={handleResetFilters}
-          />
+          {isLoading || categoriesLoading ? (
+            <div className="text-center py-16">
+              <p className="text-lg text-zinc-400">Đang tải...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-16">
+              <p className="text-lg text-red-400">{error}</p>
+            </div>
+          ) : (
+            <LocationsGrid
+              locations={filteredLocations}
+              onViewPlace={handlePlaceClick}
+              onResetFilters={handleResetFilters}
+            />
+          )}
         </div>
       </div>
     </div>

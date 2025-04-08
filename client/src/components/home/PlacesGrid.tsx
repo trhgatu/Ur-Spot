@@ -1,25 +1,16 @@
 import { motion } from "framer-motion"
-import { PlaceCard } from "@/components/PlaceCard"
+import { LocationCard } from "@/components/PlaceCard"
 import { Button } from "@/components/ui/button"
+import { Location } from "@/types/location"
 
-interface Place {
-  id: string
-  name: string
-  description: string
-  image: string
-  category: string
-  rating: number
-  address: string
-}
-
-interface PlacesGridProps {
-  places: Place[]
+interface LocationsGridProps {
+  locations: Location[]
   onViewPlace: (id: string) => void
   onResetFilters: () => void
 }
 
-export function PlacesGrid({ places, onViewPlace, onResetFilters }: PlacesGridProps) {
-  if (places.length === 0) {
+export function LocationsGrid({ locations, onViewPlace, onResetFilters }: LocationsGridProps) {
+  if (locations.length === 0) {
     return (
       <motion.div
         className="text-center py-16 bg-zinc-800/30 rounded-xl border border-zinc-700/50"
@@ -46,17 +37,17 @@ export function PlacesGrid({ places, onViewPlace, onResetFilters }: PlacesGridPr
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {places.map((place, index) => (
+      {locations.map((location, index) => (
         <motion.div
-          key={place.id}
+          key={location._id}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
           viewport={{ once: true }}
         >
-          <PlaceCard
-            {...place}
-            onClick={() => onViewPlace(place.id)}
+          <LocationCard
+            {...location}
+            onClick={() => onViewPlace(location._id)}
           />
         </motion.div>
       ))}

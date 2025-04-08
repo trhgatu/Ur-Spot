@@ -3,31 +3,35 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MapPin, Star } from "lucide-react"
 
-interface PlaceCardProps {
-  id: string
+interface LocationCardProps {
+  _id: string
   name: string
   description: string
-  image: string
+  images: string[]
   category: string
-  rating: number
+  averageRating: number
   address: string
   onClick?: () => void
 }
 
-export function PlaceCard({
+export function LocationCard({
   name,
   description,
-  image,
+  images,
   category,
-  rating,
+  averageRating,
   address,
   onClick
-}: PlaceCardProps) {
+}: LocationCardProps) {
+  const imageUrl = images && images.length > 0
+    ? images[0]
+    : "https://placehold.co/600x400/gray/white?text=No+Image";
+
   return (
     <Card className="w-full max-w-sm overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={onClick}>
       <CardHeader className="p-0">
         <img
-          src={image}
+          src={imageUrl}
           alt={name}
           className="w-full h-48 object-cover"
         />
@@ -44,7 +48,7 @@ export function PlaceCard({
         </div>
         <div className="flex items-center gap-1 mt-2">
           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-          <span className="text-sm font-medium">{rating.toFixed(1)}</span>
+          <span className="text-sm font-medium">{averageRating}</span>
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
