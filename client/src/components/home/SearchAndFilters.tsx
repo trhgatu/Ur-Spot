@@ -1,6 +1,14 @@
 import { motion } from "framer-motion"
-import { Search, MapPin } from "lucide-react"
+import { Search, MapPin, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from "@/components/ui/dropdown-menu"
 
 interface SearchAndFiltersProps {
   searchQuery: string
@@ -42,7 +50,7 @@ export function SearchAndFilters({
 
       {/* Search Bar */}
       <div className="relative mb-8">
-        <input
+        <Input
           type="text"
           placeholder="Tìm kiếm địa điểm..."
           className="w-full p-4 pl-12 rounded-lg border border-zinc-700 bg-zinc-800/50 text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
@@ -60,34 +68,60 @@ export function SearchAndFilters({
         </div>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
-            <select
-              className="w-full p-3 rounded-lg border border-zinc-700 bg-zinc-800/50 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
-              value={selectedCity}
-              onChange={(e) => {
-                onCityChange(e.target.value)
-                onDistrictChange("Tất cả quận")
-              }}
-            >
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between border border-zinc-700 bg-zinc-800/50 text-white hover:bg-zinc-700/70 hover:text-white"
+                >
+                  {selectedCity}
+                  <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full min-w-[200px] max-h-[300px] overflow-y-auto bg-zinc-800 border border-zinc-700">
+                <DropdownMenuRadioGroup value={selectedCity} onValueChange={(value) => {
+                  onCityChange(value);
+                  onDistrictChange("Tất cả quận");
+                }}>
+                  {cities.map((city) => (
+                    <DropdownMenuRadioItem
+                      key={city}
+                      value={city}
+                      className="text-white cursor-pointer hover:bg-zinc-700"
+                    >
+                      {city}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="flex-1">
-            <select
-              className="w-full p-3 rounded-lg border border-zinc-700 bg-zinc-800/50 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
-              value={selectedDistrict}
-              onChange={(e) => onDistrictChange(e.target.value)}
-              disabled={selectedCity === "Tất cả thành phố"}
-            >
-              {selectedCity !== "Tất cả thành phố" && districts[selectedCity].map((district) => (
-                <option key={district} value={district}>
-                  {district}
-                </option>
-              ))}
-            </select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between border border-zinc-700 bg-zinc-800/50 text-white hover:bg-zinc-700/70 hover:text-white"
+                  disabled={selectedCity === "Tất cả thành phố"}
+                >
+                  {selectedDistrict}
+                  <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full min-w-[200px] max-h-[300px] overflow-y-auto bg-zinc-800 border border-zinc-700">
+                <DropdownMenuRadioGroup value={selectedDistrict} onValueChange={onDistrictChange}>
+                  {selectedCity !== "Tất cả thành phố" && districts[selectedCity]?.map((district) => (
+                    <DropdownMenuRadioItem
+                      key={district}
+                      value={district}
+                      className="text-white cursor-pointer hover:bg-zinc-700"
+                    >
+                      {district}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
