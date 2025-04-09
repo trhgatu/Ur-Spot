@@ -4,6 +4,8 @@ import { LocationsGrid } from "@/components/home/LocationsGrid"
 import { Sidebar } from "@/components/home/Sidebar"
 import { useLocationStore } from "@/store/locationStore"
 import { useCategoryStore } from "@/store/categoryStore"
+import { Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 const cities = [
   "Tất cả thành phố",
@@ -78,11 +80,24 @@ export function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCity, setSelectedCity] = useState("Tất cả thành phố")
   const [selectedDistrict, setSelectedDistrict] = useState("Tất cả quận")
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     fetchAllLocations()
     fetchAllCategories()
   }, [fetchAllLocations, fetchAllCategories])
+
+  // Close sidebar when window resizes to larger screen
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(false)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const categoryNames = ["Tất cả", ...(categoryList?.allCategory?.map(category => category.name) ?? [])]
   const filteredLocations = locationList?.allLocation?.filter((location) => {
@@ -101,16 +116,45 @@ export function HomePage() {
     setSelectedDistrict("Tất cả quận")
   }
 
+  // Function to handle category change from sidebar and close sidebar on mobile
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category)
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false)
+    }
+  }
+
   return (
-    <div className="w-full min-h-screen">
+    <div className="w-full min-h-screen relative">
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="rounded-full"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Overlay for mobile sidebar */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <Sidebar
         selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
+        onCategoryChange={handleCategoryChange}
         categories={categoryNames}
+        isOpen={sidebarOpen}
       />
 
-      <div className="pl-64">
-        <div className="container mx-auto px-4">
+      <div className="lg:pl-64">
+        <div className="container mx-auto px-4 py-8">
           <SearchAndFilters
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
