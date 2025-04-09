@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Share2, MapPin, Phone, Clock, Star, Heart, ArrowLeft, BookOpen, CalendarClock, Utensils, Wifi, Globe, Cigarette, Ban } from "lucide-react";
+import { Share2, MapPin, Phone, Clock, Star, Heart, BookOpen, CalendarClock, Utensils, Wifi, Globe, Cigarette, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCategoryStore } from "@/store/categoryStore";
-import { Location } from "@/types/location";
 import { Category } from "@/types/category";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { BackButton } from "@/components/BackButton";
+import { useLocationStore } from "@/store/locationStore";
 
 const MOCK_REVIEWS = [
   {
@@ -45,64 +46,62 @@ const AMENITIES = [
   { id: 6, name: "Không hút thuốc", icon: <Cigarette className="w-5 h-5" /> },
 ];
 
-const MOCK_LOCATION: Location = {
-  _id: "1",
-  name: "Highlands Coffee - Nguyễn Huệ",
-  description: "Highlands Coffee là một thương hiệu cà phê Việt Nam nổi tiếng với không gian hiện đại, menu đa dạng và chất lượng phục vụ chuyên nghiệp. Quán cung cấp các loại cà phê, trà, nước trái cây, bánh ngọt và món ăn nhẹ. Đây là điểm đến lý tưởng cho các cuộc gặp gỡ, làm việc và thư giãn.",
-  categoryId: "1",
-  address: "42 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh",
-  type: "cafe",
-  images: [
-    "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1378&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1447&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  ],
-  ratings: 120,
-  averageRating: 4.5,
-  createdAt: "2023-01-01T00:00:00.000Z",
-  updatedAt: "2023-01-01T00:00:00.000Z",
-};
-
-const MOCK_CATEGORY: Category = {
-  _id: "1",
-  name: "Cà phê",
-  description: "Quán cà phê với không gian thoải mái để thư giãn và làm việc",
-  slug: "ca-phe",
-  icon: "coffee",
-};
-
 export function LocationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { categoryList } = useCategoryStore();
-  const [location, setLocation] = useState<Location | null>(null);
-  const [category, setCategory] = useState<Category | null>(null);
+  const { selectedLocation, getLocationById, isLoading } = useLocationStore();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [category, setCategory] = useState<Category | null>(null);
 
   useEffect(() => {
-    // In a real app, you'd fetch location data from the API
-    // Example: fetchLocationById(id).then(data => setLocation(data));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
-    // Using mock data for now
-    setLocation(MOCK_LOCATION);
+  useEffect(() => {
+    if (id) {
+      getLocationById(id);
+    }
+  }, [id, getLocationById]);
 
-    // Find category from category store
-    if (categoryList?.data) {
-      const foundCategory = categoryList.data.find(
-        (cat) => cat._id === MOCK_LOCATION.categoryId
-      );
-      if (foundCategory) {
-        setCategory(foundCategory);
+  useEffect(() => {
+    if (categoryList?.data && selectedLocation) {
+      const categoryId = selectedLocation.categoryId;
+
+      if (categoryId) {
+        const foundCategory = categoryList.allCategory?.find(
+          (cat) => cat._id === categoryId || cat.name.toLowerCase() === String(categoryId).toLowerCase()
+        );
+
+        if (foundCategory) {
+          setCategory(foundCategory);
+        } else {
+          setCategory({
+            _id: "temp-id",
+            name: String(categoryId).charAt(0).toUpperCase() + String(categoryId).slice(1),
+            description: "",
+            slug: "",
+            icon: ""
+          });
+        }
       } else {
-        setCategory(MOCK_CATEGORY);
+        setCategory({
+          _id: "unknown",
+          name: "Không xác định",
+          description: "",
+          slug: "",
+          icon: ""
+        });
       }
     } else {
-      setCategory(MOCK_CATEGORY);
+      setCategory(null);
     }
-  }, [id, categoryList]);
+  }, [categoryList, selectedLocation]);
 
-  if (!location || !category) {
+  console.log("selectedLocation:", selectedLocation);
+  console.log("category:", category);
+
+  if (isLoading) {
     return (
       <div className="container mx-auto py-20 text-center">
         <div className="animate-pulse">Đang tải...</div>
@@ -110,35 +109,42 @@ export function LocationDetailPage() {
     );
   }
 
+  if (!selectedLocation) {
+    return (
+      <div className="container mx-auto py-20 text-center">
+        <div>Không tìm thấy địa điểm hoặc đã xảy ra lỗi</div>
+        <div className="mt-4">
+          <BackButton to="/" label="Quay lại trang chủ" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
-      {/* Back Button */}
       <div className="mb-6">
-        <Link to="/">
-          <Button variant="ghost" className="flex items-center gap-2 pl-0 hover:bg-transparent hover:text-primary">
-            <ArrowLeft size={18} />
-            <span>Quay lại</span>
-          </Button>
-        </Link>
+        <BackButton to="/" />
       </div>
-
-      {/* Location Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-              {category.name}
-            </Badge>
+            {category && (
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                {category.name}
+              </Badge>
+            )}
             <div className="flex items-center gap-1 text-yellow-500">
               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">{location.averageRating}</span>
-              <span className="text-muted-foreground text-sm">({location.ratings} đánh giá)</span>
+              <span className="font-medium">{selectedLocation.averageRating}</span>
+              <span className="text-muted-foreground text-sm">
+                ({Array.isArray(selectedLocation.ratings) ? selectedLocation.ratings.length : selectedLocation.ratings || 0} đánh giá)
+              </span>
             </div>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{location.name}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">{selectedLocation.name}</h1>
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin size={16} className="flex-shrink-0" />
-            <span className="text-sm">{location.address}</span>
+            <span className="text-sm">{selectedLocation.address}</span>
           </div>
         </div>
         <div className="flex gap-2 mt-2 sm:mt-0">
@@ -160,19 +166,17 @@ export function LocationDetailPage() {
           </Button>
         </div>
       </div>
-
-      {/* Gallery */}
       <div className="mb-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 h-auto">
           <div className="col-span-1 md:col-span-3 rounded-lg overflow-hidden h-[320px] md:h-[400px]">
             <img
-              src={location.images[activeImageIndex]}
-              alt={location.name}
+              src={selectedLocation.images[activeImageIndex]}
+              alt={selectedLocation.name}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="hidden md:grid col-span-1 grid-rows-3 gap-3 h-[400px]">
-            {location.images.slice(1, 4).map((image, index) => (
+            {selectedLocation.images.slice(1, 4).map((image, index) => (
               <div
                 key={index}
                 className="relative rounded-lg overflow-hidden cursor-pointer h-full"
@@ -180,22 +184,21 @@ export function LocationDetailPage() {
               >
                 <img
                   src={image}
-                  alt={`${location.name} ${index + 1}`}
+                  alt={`${selectedLocation.name} ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
-                {index === 2 && location.images.length > 4 && (
+                {index === 2 && selectedLocation.images.length > 4 && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <span className="text-white font-semibold text-lg">
-                      +{location.images.length - 4} ảnh
+                      +{selectedLocation.images.length - 4} ảnh
                     </span>
                   </div>
                 )}
               </div>
             ))}
           </div>
-          {/* Mobile thumbnail row */}
           <div className="md:hidden col-span-1 flex gap-2 overflow-x-auto py-2 mt-2">
-            {location.images.map((image, index) => (
+            {selectedLocation.images.map((image, index) => (
               <div
                 key={index}
                 className={`relative rounded-lg overflow-hidden cursor-pointer flex-shrink-0 w-16 h-16 ${
@@ -205,7 +208,7 @@ export function LocationDetailPage() {
               >
                 <img
                   src={image}
-                  alt={`${location.name} ${index + 1}`}
+                  alt={`${selectedLocation.name} ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -213,8 +216,6 @@ export function LocationDetailPage() {
           </div>
         </div>
       </div>
-
-      {/* Content Tabs */}
       <div className="mb-8 mt-6 pt-2 border-t">
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="mb-4 w-full justify-start overflow-x-auto">
@@ -224,7 +225,6 @@ export function LocationDetailPage() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Description */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
                 <motion.div
@@ -234,11 +234,9 @@ export function LocationDetailPage() {
                 >
                   <h2 className="text-xl font-semibold mb-3">Mô tả</h2>
                   <p className="text-muted-foreground text-sm whitespace-pre-line">
-                    {location.description}
+                    {selectedLocation.description}
                   </p>
                 </motion.div>
-
-                {/* Amenities */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -254,8 +252,6 @@ export function LocationDetailPage() {
                     ))}
                   </div>
                 </motion.div>
-
-                {/* Map placeholder */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -267,8 +263,6 @@ export function LocationDetailPage() {
                   </div>
                 </motion.div>
               </div>
-
-              {/* Info Card */}
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -366,9 +360,9 @@ export function LocationDetailPage() {
 
           <TabsContent value="photos">
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Hình ảnh ({location.images.length})</h2>
+              <h2 className="text-xl font-semibold">Hình ảnh ({selectedLocation.images.length})</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {location.images.map((image, index) => (
+                {selectedLocation.images.map((image, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -378,7 +372,7 @@ export function LocationDetailPage() {
                   >
                     <img
                       src={image}
-                      alt={`${location.name} ${index + 1}`}
+                      alt={`${selectedLocation.name} ${index + 1}`}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
                   </motion.div>
@@ -388,12 +382,9 @@ export function LocationDetailPage() {
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Similar Locations - Placeholder */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Địa điểm tương tự</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {/* You would map through similar locations here */}
           <div className="h-[250px] rounded-lg bg-muted animate-pulse"></div>
           <div className="h-[250px] rounded-lg bg-muted animate-pulse"></div>
           <div className="h-[250px] rounded-lg bg-muted animate-pulse"></div>

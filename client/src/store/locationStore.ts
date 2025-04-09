@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Location } from "@/types/location";
-import { getAllLocations, searchLocationByName } from "@/services/locationServices";
+import { getAllLocations, getLocationById, searchLocationByName } from "@/services/locationServices";
 
 interface LocationListResponse {
     data: Location[]
@@ -21,6 +21,7 @@ interface LocationState {
     fetchAllLocations: () => Promise<void>
     searchResults: Location[]
     searchLocation: (query: string) => void
+    getLocationById: (id: string) => Promise<void>
 }
 
 export const useLocationStore = create<LocationState>((set) => ({
@@ -71,6 +72,19 @@ export const useLocationStore = create<LocationState>((set) => ({
         } catch (error) {
             set({ error: "Failed to fetch locations", isLoading: false });
             console.error("Error fetching locations:", error);
+        }
+    },
+    getLocationById: async (id: string) => {
+        set({ isLoading: true, error: null });
+        try {
+            const data = await getLocationById(id);
+            set({
+                selectedLocation: data.data,
+                isLoading: false
+            });
+        } catch (error) {
+            set({ error: "Failed to fetch location by ID", isLoading: false });
+            console.error("Error fetching location by ID:", error);
         }
     }
 }));
