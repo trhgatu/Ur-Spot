@@ -29,7 +29,7 @@ export function Sidebar({ selectedCategory, onCategoryChange, categories, isOpen
   return (
     <motion.div
       className={cn(
-        "w-64 backdrop-blur-sm border-r h-full fixed left-0 top-0 pt-20 pb-6 overflow-y-auto z-50 transition-transform duration-300 bg-background",
+        "w-64 backdrop-blur-sm border-r h-[calc(100vh-64px)] fixed left-0 top-16 pt-6 pb-6 overflow-y-auto z-40 transition-transform duration-300 bg-background",
         // Mobile: show/hide based on isOpen state
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}

@@ -4,8 +4,7 @@ import { LocationsGrid } from "@/components/home/LocationsGrid"
 import { Sidebar } from "@/components/home/Sidebar"
 import { useLocationStore } from "@/store/locationStore"
 import { useCategoryStore } from "@/store/categoryStore"
-import { Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useSidebar } from "@/contexts/SidebarContext"
 
 const cities = [
   "Tất cả thành phố",
@@ -72,7 +71,6 @@ const districts = {
   ],
 }
 
-
 export function HomePage() {
   const { locationList, isLoading, error, fetchAllLocations } = useLocationStore()
   const { categoryList, isLoading: categoriesLoading, fetchAllCategories } = useCategoryStore()
@@ -80,7 +78,7 @@ export function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCity, setSelectedCity] = useState("Tất cả thành phố")
   const [selectedDistrict, setSelectedDistrict] = useState("Tất cả quận")
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { sidebarOpen, toggleSidebar } = useSidebar()
 
   useEffect(() => {
     fetchAllLocations()
@@ -90,14 +88,14 @@ export function HomePage() {
   // Close sidebar when window resizes to larger screen
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setSidebarOpen(false)
+      if (window.innerWidth >= 1024 && sidebarOpen) {
+        toggleSidebar()
       }
     }
 
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  }, [sidebarOpen, toggleSidebar])
 
   const categoryNames = ["Tất cả", ...(categoryList?.allCategory?.map(category => category.name) ?? [])]
   const filteredLocations = locationList?.allLocation?.filter((location) => {
@@ -119,30 +117,18 @@ export function HomePage() {
   // Function to handle category change from sidebar and close sidebar on mobile
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category)
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false)
+    if (window.innerWidth < 1024 && sidebarOpen) {
+      toggleSidebar()
     }
   }
 
   return (
     <div className="w-full min-h-screen relative">
-      {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="rounded-full"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-      </div>
-
       {/* Overlay for mobile sidebar */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={toggleSidebar}
         />
       )}
 
@@ -153,8 +139,8 @@ export function HomePage() {
         isOpen={sidebarOpen}
       />
 
-      <div className="lg:pl-64">
-        <div className="container mx-auto px-4 py-8">
+      <div className="lg:pl-64 pt-4">
+        <div className="container mx-auto px-4 py-6">
           <SearchAndFilters
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}

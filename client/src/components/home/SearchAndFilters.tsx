@@ -101,19 +101,19 @@ export function SearchAndFilters({
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-between"
+                        className="w-full justify-between group transition-all duration-200 border-zinc-600 hover:border-primary"
                       >
-                        {selectedCity}
-                        <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+                        <span>{selectedCity}</span>
+                        <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-full min-w-[200px]">
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[280px] overflow-y-auto border-zinc-600">
                       <DropdownMenuRadioGroup value={selectedCity} onValueChange={(value) => {
                         onCityChange(value);
                         onDistrictChange("Tất cả quận");
                       }}>
                         {cities.map((city) => (
-                          <DropdownMenuRadioItem key={city} value={city}>
+                          <DropdownMenuRadioItem key={city} value={city} className="cursor-pointer transition-colors">
                             {city}
                           </DropdownMenuRadioItem>
                         ))}
@@ -128,17 +128,17 @@ export function SearchAndFilters({
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-between"
+                        className="w-full justify-between group transition-all duration-200 border-zinc-600 hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={selectedCity === "Tất cả thành phố"}
                       >
-                        {selectedDistrict}
-                        <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+                        <span>{selectedDistrict}</span>
+                        <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-full min-w-[200px]">
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[280px] overflow-y-auto border-zinc-600">
                       <DropdownMenuRadioGroup value={selectedDistrict} onValueChange={onDistrictChange}>
                         {selectedCity !== "Tất cả thành phố" && districts[selectedCity]?.map((district) => (
-                          <DropdownMenuRadioItem key={district} value={district}>
+                          <DropdownMenuRadioItem key={district} value={district} className="cursor-pointer transition-colors">
                             {district}
                           </DropdownMenuRadioItem>
                         ))}
@@ -157,7 +157,7 @@ export function SearchAndFilters({
         <Input
           type="text"
           placeholder="Tìm kiếm địa điểm..."
-          className="w-full p-3 md:p-4 pl-10 md:pl-12 rounded-lg border border-zinc-700 bg-zinc-800/50 text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+          className="w-full p-3 md:p-4 pl-10 md:pl-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />
@@ -176,13 +176,13 @@ export function SearchAndFilters({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-between border border-zinc-700 bg-zinc-800/50 text-white hover:bg-zinc-700/70 hover:text-white"
+                  className="w-full justify-between group transition-all duration-200 border-zinc-600 hover:border-primary"
                 >
-                  {selectedCity}
-                  <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+                  <span>{selectedCity}</span>
+                  <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full min-w-[200px] max-h-[300px] overflow-y-auto bg-zinc-800 border border-zinc-700">
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[300px] overflow-y-auto border-zinc-600">
                 <DropdownMenuRadioGroup value={selectedCity} onValueChange={(value) => {
                   onCityChange(value);
                   onDistrictChange("Tất cả quận");
@@ -191,7 +191,7 @@ export function SearchAndFilters({
                     <DropdownMenuRadioItem
                       key={city}
                       value={city}
-                      className="text-white cursor-pointer hover:bg-zinc-700"
+                      className="cursor-pointer transition-colors hover:bg-primary/10"
                     >
                       {city}
                     </DropdownMenuRadioItem>
@@ -205,20 +205,20 @@ export function SearchAndFilters({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-between border border-zinc-700 bg-zinc-800/50 text-white hover:bg-zinc-700/70 hover:text-white"
+                  className="w-full justify-between group transition-all duration-200 border-zinc-600 hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={selectedCity === "Tất cả thành phố"}
                 >
-                  {selectedDistrict}
-                  <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+                  <span>{selectedDistrict}</span>
+                  <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full min-w-[200px] max-h-[300px] overflow-y-auto bg-zinc-800 border border-zinc-700">
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[300px] overflow-y-auto border-zinc-600">
                 <DropdownMenuRadioGroup value={selectedDistrict} onValueChange={onDistrictChange}>
                   {selectedCity !== "Tất cả thành phố" && districts[selectedCity]?.map((district) => (
                     <DropdownMenuRadioItem
                       key={district}
                       value={district}
-                      className="text-white cursor-pointer hover:bg-zinc-700"
+                      className="cursor-pointer transition-colors hover:bg-primary/10"
                     >
                       {district}
                     </DropdownMenuRadioItem>
@@ -241,7 +241,7 @@ export function SearchAndFilters({
             <Button
               variant={selectedCategory === category ? "default" : "outline"}
               onClick={() => onCategoryChange(category)}
-              className={selectedCategory === category ? "bg-primary hover:bg-primary/90" : "border-zinc-700 hover:bg-zinc-800"}
+              className={selectedCategory === category ? "bg-primary hover:bg-primary/90" : "border-zinc-600 hover:bg-zinc-800 hover:border-primary transition-colors duration-200"}
             >
               {category}
             </Button>
