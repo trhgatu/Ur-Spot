@@ -20,17 +20,17 @@ export const LanguageSwitcher: React.FC = () => {
     <div className="relative">
       <button
         onClick={toggleDropdown}
-        className="flex items-center gap-1 p-2 rounded-md hover:bg-zinc-800 transition-colors"
+        className="flex items-center gap-1 p-2 rounded-md  transition-colors"
         aria-label={t('language.switch')}
         title={t('language.switch')}
       >
-        <Globe size={20} className="text-white" />
-        <span className="hidden md:inline-block text-white text-sm">{language.toUpperCase()}</span>
+        <Globe size={20}/>
+        <span className="hidden md:inline-block text-sm">{language.toUpperCase()}</span>
       </button>
 
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-40 bg-zinc-800 rounded-md shadow-lg py-1 z-50 border border-zinc-700"
+          className="absolute right-0 mt-2 w-40rounded-md shadow-lg py-1 z-50 border border-zinc-700"
           onBlur={() => setIsOpen(false)}
         >
           <button

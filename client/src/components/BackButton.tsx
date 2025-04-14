@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 interface BackButtonProps {
   to?: string;
   label?: string;
+  className?: string;
 }
 
 export function BackButton({ to, label = "Quay lại" }: BackButtonProps) {

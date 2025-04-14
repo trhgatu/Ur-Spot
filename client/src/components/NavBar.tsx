@@ -13,7 +13,7 @@ interface NavBarProps {
 export const NavBar: React.FC<NavBarProps> = ({ onMenuClick }) => {
   return (
     <motion.header
-      className="w-full bg-zinc-900/95 border-b border-zinc-800/70 text-white sticky top-0 z-50 shadow-md backdrop-blur-md h-16"
+      className="w-full sticky top-0 z-50 shadow-sm backdrop-blur-md h-16"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
@@ -26,7 +26,7 @@ export const NavBar: React.FC<NavBarProps> = ({ onMenuClick }) => {
             whileTap={{ scale: 0.95 }}
           >
             <span className="text-primary">Ur</span>
-            <span className="text-white">Spot</span>
+            <span className="">Spot</span>
           </motion.div>
         </Link>
 
@@ -37,7 +37,7 @@ export const NavBar: React.FC<NavBarProps> = ({ onMenuClick }) => {
             variant="outline"
             size="icon"
             onClick={onMenuClick}
-            className="rounded-full bg-zinc-800/80 border-zinc-700 hover:bg-zinc-700 lg:hidden"
+            className="rounded-full lg:hidden"
           >
             <Menu className="h-5 w-5" />
           </Button>

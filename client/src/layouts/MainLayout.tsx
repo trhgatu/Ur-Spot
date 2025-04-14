@@ -21,7 +21,7 @@ export const MainLayout: React.FC = () => {
           <Outlet />
         </main>
 
-        <footer className="py-12 border-t border-zinc-800/60 bg-zinc-900/50 relative z-30 lg:pl-64">
+        <footer className="py-12 border-t relative z-30 lg:pl-64">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
               <div>
@@ -29,15 +29,15 @@ export const MainLayout: React.FC = () => {
                   <span className="text-primary">Ur</span>
                   <span className="text-white">Spot</span>
                 </h2>
-                <p className="text-zinc-400 mb-4">Khám phá những địa điểm thú vị nhất tại Việt Nam với cộng đồng UrSpot.</p>
+                <p className=" mb-4">Khám phá những địa điểm thú vị nhất tại Việt Nam với cộng đồng UrSpot.</p>
                 <div className="flex space-x-3">
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors">
+                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full transition-colors">
                     <Github className="h-5 w-5" />
                   </a>
-                  <a href="mailto:contact@urspot.com" className="p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors">
+                  <a href="mailto:contact@urspot.com" className="p-2 rounded-full transition-colors">
                     <Mail className="h-5 w-5" />
                   </a>
-                  <a href="#" className="p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors">
+                  <a href="#" className="p-2 rounded-full transition-colors">
                     <MessageSquare className="h-5 w-5" />
                   </a>
                 </div>
@@ -46,10 +46,10 @@ export const MainLayout: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Khám phá</h3>
                 <ul className="space-y-2">
-                  <li><Link to="/" className="text-zinc-400 hover:text-primary transition-colors">Trang chủ</Link></li>
-                  <li><Link to="/about" className="text-zinc-400 hover:text-primary transition-colors">Về chúng tôi</Link></li>
-                  <li><Link to="/contact" className="text-zinc-400 hover:text-primary transition-colors">Liên hệ</Link></li>
-                  <li><Link to="/places" className="text-zinc-400 hover:text-primary transition-colors">Địa điểm mới</Link></li>
+                  <li><Link to="/" className=" hover:text-primary transition-colors">Trang chủ</Link></li>
+                  <li><Link to="/about" className=" hover:text-primary transition-colors">Về chúng tôi</Link></li>
+                  <li><Link to="/contact" className=" hover:text-primary transition-colors">Liên hệ</Link></li>
+                  <li><Link to="/places" className=" hover:text-primary transition-colors">Địa điểm mới</Link></li>
                 </ul>
               </div>
 
@@ -58,15 +58,15 @@ export const MainLayout: React.FC = () => {
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2">
                     <Coffee className="h-4 w-4 text-primary" />
-                    <Link to="/?category=coffee" className="text-zinc-400 hover:text-primary transition-colors">Quán cà phê</Link>
+                    <Link to="/?category=coffee" className=" hover:text-primary transition-colors">Quán cà phê</Link>
                   </li>
                   <li className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
-                    <Link to="/?category=restaurants" className="text-zinc-400 hover:text-primary transition-colors">Quán ăn</Link>
+                    <Link to="/?category=restaurants" className=" hover:text-primary transition-colors">Quán ăn</Link>
                   </li>
                   <li className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
-                    <Link to="/?category=shops" className="text-zinc-400 hover:text-primary transition-colors">Cửa hàng</Link>
+                    <Link to="/?category=shops" className=" hover:text-primary transition-colors">Cửa hàng</Link>
                   </li>
                 </ul>
               </div>
