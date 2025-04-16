@@ -1,14 +1,14 @@
-import { motion } from "framer-motion"
-import { Search, MapPin, ChevronDown, Filter, X, Sparkles } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { motion } from "framer-motion";
+import { Search, MapPin, ChevronDown, Filter, X, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -17,22 +17,30 @@ import {
   SheetTrigger,
   SheetFooter,
   SheetClose,
-} from "@/components/ui/sheet"
-import { useState, useEffect } from "react"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/sheet";
+import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+
+interface AdministrativeUnit {
+  code: string;
+  name: string;
+}
 
 interface SearchAndFiltersProps {
-  searchQuery: string
-  onSearchChange: (value: string) => void
-  selectedCategory: string
-  onCategoryChange: (category: string) => void
-  selectedCity: string
-  onCityChange: (city: string) => void
-  selectedDistrict: string
-  onDistrictChange: (district: string) => void
-  categories: string[]
-  cities: string[]
-  districts: Record<string, string[]>
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
+  selectedCategory: string;
+  onCategoryChange: (category: string) => void;
+  selectedCity: string;
+  onCityChange: (city: string) => void;
+  selectedDistrict: string;
+  onDistrictChange: (district: string) => void;
+  selectedWard: string;
+  onWardChange: (ward: string) => void;
+  categories: string[];
+  cities: AdministrativeUnit[];
+  districts: AdministrativeUnit[];
+  wards: AdministrativeUnit[];
 }
 
 export function SearchAndFilters({
@@ -44,33 +52,36 @@ export function SearchAndFilters({
   onCityChange,
   selectedDistrict,
   onDistrictChange,
+  selectedWard,
+  onWardChange,
   categories,
   cities,
   districts,
+  wards,
 }: SearchAndFiltersProps) {
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
-  const [activeFilters, setActiveFilters] = useState(0)
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState(0);
 
-  // Calculate active filters count
   useEffect(() => {
-    let count = 0
-    if (selectedCategory !== "Tất cả") count++
-    if (selectedCity !== "Tất cả thành phố") count++
-    if (selectedDistrict !== "Tất cả quận") count++
-    setActiveFilters(count)
-  }, [selectedCategory, selectedCity, selectedDistrict])
+    let count = 0;
+    if (selectedCategory !== "Tất cả") count++;
+    if (selectedCity !== "all") count++;
+    if (selectedDistrict !== "all") count++;
+    if (selectedWard !== "all") count++;
+    setActiveFilters(count);
+  }, [selectedCategory, selectedCity, selectedDistrict, selectedWard]);
 
-  // Close the sheet after making a selection
   const handleCategorySelection = (category: string) => {
-    onCategoryChange(category)
-    setIsSheetOpen(false)
-  }
+    onCategoryChange(category);
+    setIsSheetOpen(false);
+  };
 
   const handleResetFilters = () => {
-    onCategoryChange("Tất cả")
-    onCityChange("Tất cả thành phố")
-    onDistrictChange("Tất cả quận")
-  }
+    onCategoryChange("Tất cả");
+    onCityChange("all");
+    onDistrictChange("all");
+    onWardChange("all");
+  };
 
   return (
     <motion.div
@@ -90,15 +101,15 @@ export function SearchAndFilters({
         {/* Mobile filter button */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="lg:hidden flex items-center gap-2 relative"
             >
               <Filter className="h-4 w-4" />
               <span>Bộ lọc</span>
               {activeFilters > 0 && (
-                <Badge 
+                <Badge
                   variant="secondary"
                   className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-primary text-white text-xs rounded-full"
                 >
@@ -112,9 +123,9 @@ export function SearchAndFilters({
               <SheetTitle className="text-xl flex items-center justify-between">
                 <span>Lọc Địa Điểm</span>
                 {activeFilters > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={handleResetFilters}
                     className="text-xs flex items-center gap-1 text-muted-foreground hover:text-primary"
                   >
@@ -156,18 +167,15 @@ export function SearchAndFilters({
                         variant="outline"
                         className="w-full justify-between group transition-all duration-200 border-zinc-300 dark:border-zinc-700 hover:border-primary"
                       >
-                        <span>{selectedCity}</span>
+                        <span>{cities.find((c) => c.code === selectedCity)?.name || "Chọn tỉnh"}</span>
                         <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[280px] overflow-y-auto border-zinc-300 dark:border-zinc-700">
-                      <DropdownMenuRadioGroup value={selectedCity} onValueChange={(value) => {
-                        onCityChange(value);
-                        onDistrictChange("Tất cả quận");
-                      }}>
+                      <DropdownMenuRadioGroup value={selectedCity} onValueChange={onCityChange}>
                         {cities.map((city) => (
-                          <DropdownMenuRadioItem key={city} value={city} className="cursor-pointer transition-colors">
-                            {city}
+                          <DropdownMenuRadioItem key={city.code} value={city.code} className="cursor-pointer transition-colors">
+                            {city.name}
                           </DropdownMenuRadioItem>
                         ))}
                       </DropdownMenuRadioGroup>
@@ -182,17 +190,42 @@ export function SearchAndFilters({
                       <Button
                         variant="outline"
                         className="w-full justify-between group transition-all duration-200 border-zinc-300 dark:border-zinc-700 hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={selectedCity === "Tất cả thành phố"}
+                        disabled={!selectedCity || selectedCity === "all"}
                       >
-                        <span>{selectedDistrict}</span>
+                        <span>{districts.find((d) => d.code === selectedDistrict)?.name || "Chọn quận"}</span>
                         <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[280px] overflow-y-auto border-zinc-300 dark:border-zinc-700">
                       <DropdownMenuRadioGroup value={selectedDistrict} onValueChange={onDistrictChange}>
-                        {selectedCity !== "Tất cả thành phố" && districts[selectedCity]?.map((district) => (
-                          <DropdownMenuRadioItem key={district} value={district} className="cursor-pointer transition-colors">
-                            {district}
+                        {districts.map((district) => (
+                          <DropdownMenuRadioItem key={district.code} value={district.code} className="cursor-pointer transition-colors">
+                            {district.name}
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div className="w-full">
+                  <h4 className="text-sm font-medium mb-2">Phường/Xã</h4>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between group transition-all duration-200 border-zinc-300 dark:border-zinc-700 hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={!selectedDistrict || selectedDistrict === "all"}
+                      >
+                        <span>{wards.find((w) => w.code === selectedWard)?.name || "Chọn phường"}</span>
+                        <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[280px] overflow-y-auto border-zinc-300 dark:border-zinc-700">
+                      <DropdownMenuRadioGroup value={selectedWard} onValueChange={onWardChange}>
+                        {wards.map((ward) => (
+                          <DropdownMenuRadioItem key={ward.code} value={ward.code} className="cursor-pointer transition-colors">
+                            {ward.name}
                           </DropdownMenuRadioItem>
                         ))}
                       </DropdownMenuRadioGroup>
@@ -232,16 +265,16 @@ export function SearchAndFilters({
             </Button>
           )}
         </div>
-        
+
         {/* Active filters display */}
         {activeFilters > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {selectedCategory !== "Tất cả" && (
               <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary flex items-center gap-1">
                 {selectedCategory}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => onCategoryChange("Tất cả")}
                   className="h-4 w-4 p-0 ml-1 rounded-full hover:bg-primary/20"
                 >
@@ -249,15 +282,16 @@ export function SearchAndFilters({
                 </Button>
               </Badge>
             )}
-            {selectedCity !== "Tất cả thành phố" && (
+            {selectedCity !== "all" && (
               <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary flex items-center gap-1">
-                {selectedCity}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                {cities.find((c) => c.code === selectedCity)?.name || selectedCity}
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => {
-                    onCityChange("Tất cả thành phố");
-                    onDistrictChange("Tất cả quận");
+                    onCityChange("all");
+                    onDistrictChange("all");
+                    onWardChange("all");
                   }}
                   className="h-4 w-4 p-0 ml-1 rounded-full hover:bg-primary/20"
                 >
@@ -265,13 +299,29 @@ export function SearchAndFilters({
                 </Button>
               </Badge>
             )}
-            {selectedDistrict !== "Tất cả quận" && (
+            {selectedDistrict !== "all" && (
               <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary flex items-center gap-1">
-                {selectedDistrict}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => onDistrictChange("Tất cả quận")}
+                {districts.find((d) => d.code === selectedDistrict)?.name || selectedDistrict}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    onDistrictChange("all");
+                    onWardChange("all");
+                  }}
+                  className="h-4 w-4 p-0 ml-1 rounded-full hover:bg-primary/20"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </Badge>
+            )}
+            {selectedWard !== "all" && (
+              <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary flex items-center gap-1">
+                {wards.find((w) => w.code === selectedWard)?.name || selectedWard}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onWardChange("all")}
                   className="h-4 w-4 p-0 ml-1 rounded-full hover:bg-primary/20"
                 >
                   <X className="h-3 w-3" />
@@ -279,9 +329,9 @@ export function SearchAndFilters({
               </Badge>
             )}
             {activeFilters > 1 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={handleResetFilters}
                 className="text-xs flex items-center gap-1 text-muted-foreground hover:text-primary h-6"
               >
@@ -307,22 +357,19 @@ export function SearchAndFilters({
                   variant="outline"
                   className="w-full justify-between group transition-all duration-200 border-zinc-300 dark:border-zinc-700 hover:border-primary"
                 >
-                  <span>{selectedCity}</span>
+                  <span>{cities.find((c) => c.code === selectedCity)?.name || "Chọn tỉnh"}</span>
                   <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[300px] overflow-y-auto border-zinc-300 dark:border-zinc-700">
-                <DropdownMenuRadioGroup value={selectedCity} onValueChange={(value) => {
-                  onCityChange(value);
-                  onDistrictChange("Tất cả quận");
-                }}>
+                <DropdownMenuRadioGroup value={selectedCity} onValueChange={onCityChange}>
                   {cities.map((city) => (
                     <DropdownMenuRadioItem
-                      key={city}
-                      value={city}
+                      key={city.code}
+                      value={city.code}
                       className="cursor-pointer transition-colors hover:bg-primary/10"
                     >
-                      {city}
+                      {city.name}
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>
@@ -335,21 +382,48 @@ export function SearchAndFilters({
                 <Button
                   variant="outline"
                   className="w-full justify-between group transition-all duration-200 border-zinc-300 dark:border-zinc-700 hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={selectedCity === "Tất cả thành phố"}
+                  disabled={!selectedCity || selectedCity === "all"}
                 >
-                  <span>{selectedDistrict}</span>
+                  <span>{districts.find((d) => d.code === selectedDistrict)?.name || "Chọn quận"}</span>
                   <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[300px] overflow-y-auto border-zinc-300 dark:border-zinc-700">
                 <DropdownMenuRadioGroup value={selectedDistrict} onValueChange={onDistrictChange}>
-                  {selectedCity !== "Tất cả thành phố" && districts[selectedCity]?.map((district) => (
+                  {districts.map((district) => (
                     <DropdownMenuRadioItem
-                      key={district}
-                      value={district}
+                      key={district.code}
+                      value={district.code}
                       className="cursor-pointer transition-colors hover:bg-primary/10"
                     >
-                      {district}
+                      {district.name}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="flex-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between group transition-all duration-200 border-zinc-300 dark:border-zinc-700 hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!selectedDistrict || selectedDistrict === "all"}
+                >
+                  <span>{wards.find((w) => w.code === selectedWard)?.name || "Chọn phường"}</span>
+                  <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-[300px] overflow-y-auto border-zinc-300 dark:border-zinc-700">
+                <DropdownMenuRadioGroup value={selectedWard} onValueChange={onWardChange}>
+                  {wards.map((ward) => (
+                    <DropdownMenuRadioItem
+                      key={ward.code}
+                      value={ward.code}
+                      className="cursor-pointer transition-colors hover:bg-primary/10"
+                    >
+                      {ward.name}
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>
@@ -367,8 +441,8 @@ export function SearchAndFilters({
             variant={selectedCategory === category ? "default" : "outline"}
             onClick={() => onCategoryChange(category)}
             className={`${
-              selectedCategory === category 
-                ? "bg-primary hover:bg-primary/90" 
+              selectedCategory === category
+                ? "bg-primary hover:bg-primary/90"
                 : "hover:bg-primary/10 hover:text-primary hover:border-primary/30"
             } rounded-full px-4 transition-all duration-200`}
             size="sm"
@@ -378,5 +452,5 @@ export function SearchAndFilters({
         ))}
       </div>
     </motion.div>
-  )
+  );
 }

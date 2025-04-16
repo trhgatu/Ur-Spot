@@ -1,3 +1,6 @@
+import { AdministrativeUnit } from "@/types/administrativeUnit";
+import { Coordinates } from "@/types/coordinates";
+
 export interface Location {
     _id: string;
     name: string;
@@ -7,6 +10,8 @@ export interface Location {
     type: string;
     images: string[];
     ratings: number;
+    coordinates?: Coordinates
+    administrativeUnit: AdministrativeUnit
     averageRating: number;
     createdAt: string;
     updatedAt: string;
