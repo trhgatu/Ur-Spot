@@ -19,7 +19,7 @@ const controller = {
             });
         }
     },
-    create: async (req: Request, res: Response) => {
+    create: async (req: Request, res: Response): Promise<void> => {
         try {
             const { name,
                 description,
@@ -30,7 +30,7 @@ const controller = {
                 images,
                 createdBy, } = req.body;
             if (!name || !address || !categoryId || !administrativeUnit) {
-                return res.status(400).json({
+                res.status(400).json({
                     success: false,
                     message: "Name, address, categoryId, and administrativeUnit are required",
                 });
@@ -41,14 +41,14 @@ const controller = {
                 !administrativeUnit.districtId ||
                 !administrativeUnit.districtName
             ) {
-                return res.status(400).json({
+                res.status(400).json({
                     success: false,
                     message: "Province and district information is required",
                 });
             }
             const category = await Category.findById(categoryId);
             if (!category) {
-                return res.status(400).json({
+                res.status(400).json({
                     success: false,
                     message: "Invalid categoryId",
                 });
