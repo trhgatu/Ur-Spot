@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Share2, MapPin, Phone, Clock, Star, Heart, BookOpen, CalendarClock, Utensils, Wifi, Globe, Cigarette, Ban } from "lucide-react";
+import { Share2, MapPin, Phone, Clock, Star, Heart, BookOpen, CalendarClock, Utensils, Wifi, AirVent, CigaretteOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCategoryStore } from "@/store/categoryStore";
@@ -9,6 +9,7 @@ import { Category } from "@/types/category";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BackButton } from "@/components/BackButton";
 import { useLocationStore } from "@/store/locationStore";
+import { LocationMap } from "@/components/detail/LocationMap";
 
 const MOCK_REVIEWS = [
   {
@@ -37,15 +38,6 @@ const MOCK_REVIEWS = [
   },
 ];
 
-const AMENITIES = [
-  { id: 1, name: "Wifi miễn phí", icon: <Wifi className="w-5 h-5" /> },
-  { id: 2, name: "Chỗ đậu xe", icon: <MapPin className="w-5 h-5" /> },
-  { id: 3, name: "Điều hòa", icon: <Wifi className="w-5 h-5" /> },
-  { id: 4, name: "Không gian ngoài trời", icon: <Globe className="w-5 h-5" /> },
-  { id: 5, name: "Phục vụ ăn uống", icon: <Utensils className="w-5 h-5" /> },
-  { id: 6, name: "Không hút thuốc", icon: <Cigarette className="w-5 h-5" /> },
-];
-
 export function LocationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { categoryList } = useCategoryStore();
@@ -55,7 +47,7 @@ export function LocationDetailPage() {
   const [category, setCategory] = useState<Category | null>(null);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   useEffect(() => {
@@ -67,12 +59,10 @@ export function LocationDetailPage() {
   useEffect(() => {
     if (categoryList?.data && selectedLocation) {
       const categoryId = selectedLocation.categoryId;
-
       if (categoryId) {
         const foundCategory = categoryList.allCategory?.find(
           (cat) => cat._id === categoryId || cat.name.toLowerCase() === String(categoryId).toLowerCase()
         );
-
         if (foundCategory) {
           setCategory(foundCategory);
         } else {
@@ -81,7 +71,7 @@ export function LocationDetailPage() {
             name: String(categoryId).charAt(0).toUpperCase() + String(categoryId).slice(1),
             description: "",
             slug: "",
-            icon: ""
+            icon: "",
           });
         }
       } else {
@@ -90,7 +80,7 @@ export function LocationDetailPage() {
           name: "Không xác định",
           description: "",
           slug: "",
-          icon: ""
+          icon: "",
         });
       }
     } else {
@@ -119,6 +109,13 @@ export function LocationDetailPage() {
       </div>
     );
   }
+
+  const amenities = [
+    ...(selectedLocation.wifi ? [{ id: 1, name: "Wi-Fi miễn phí", icon: <Wifi className="w-5 h-5" /> }] : []),
+    ...(selectedLocation.airConditioning ? [{ id: 2, name: "Điều hòa", icon: <AirVent className="w-5 h-5" /> }] : []),
+    ...(selectedLocation.noSmoking ? [{ id: 3, name: "Không hút thuốc", icon: <CigaretteOff className="w-5 h-5" /> }] : []),
+    { id: 4, name: "Phục vụ ăn uống", icon: <Utensils className="w-5 h-5" /> }, // Giả định
+  ];
 
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
@@ -244,7 +241,7 @@ export function LocationDetailPage() {
                 >
                   <h2 className="text-xl font-semibold mb-3">Tiện nghi</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {AMENITIES.map((amenity) => (
+                    {amenities.map((amenity) => (
                       <div key={amenity.id} className="flex items-center gap-2 text-sm">
                         {amenity.icon}
                         <span>{amenity.name}</span>
@@ -258,9 +255,17 @@ export function LocationDetailPage() {
                   transition={{ duration: 0.5, delay: 0.2 }}
                 >
                   <h2 className="text-xl font-semibold mb-3">Bản đồ</h2>
-                  <div className="h-[220px] bg-muted rounded-lg flex items-center justify-center">
-                    <span className="text-muted-foreground text-sm">Bản đồ sẽ được hiển thị ở đây</span>
-                  </div>
+                  <LocationMap location={selectedLocation} />
+                  {selectedLocation.coordinates?.coordinates && (
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${selectedLocation.coordinates.coordinates[1]},${selectedLocation.coordinates.coordinates[0]}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary text-sm mt-2 inline-block"
+                    >
+                      Chỉ đường
+                    </a>
+                  )}
                 </motion.div>
               </div>
               <motion.div
@@ -271,13 +276,15 @@ export function LocationDetailPage() {
               >
                 <h3 className="text-lg font-semibold mb-4">Thông tin cơ bản</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Clock className="text-muted-foreground w-5 h-5" />
-                    <div>
-                      <div className="font-medium text-sm">Giờ mở cửa</div>
-                      <div className="text-xs text-muted-foreground">08:00 - 22:00 (Hàng ngày)</div>
+                  {selectedLocation.openingHours && (
+                    <div className="flex items-center gap-3">
+                      <Clock className="text-muted-foreground w-5 h-5" />
+                      <div>
+                        <div className="font-medium text-sm">Giờ mở cửa</div>
+                        <div className="text-xs text-muted-foreground">{selectedLocation.openingHours}</div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <div className="flex items-center gap-3">
                     <Phone className="text-muted-foreground w-5 h-5" />
                     <div>
@@ -297,13 +304,6 @@ export function LocationDetailPage() {
                     <div>
                       <div className="font-medium text-sm">Thời gian phục vụ</div>
                       <div className="text-xs text-muted-foreground">30-45 phút</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Ban className="text-muted-foreground w-5 h-5" />
-                    <div>
-                      <div className="font-medium text-sm">Quy định</div>
-                      <div className="text-xs text-muted-foreground">Không mang đồ ăn từ bên ngoài</div>
                     </div>
                   </div>
                 </div>

@@ -13,6 +13,10 @@ interface LocationCardProps {
   images: string[]
   averageRating: number
   address: string
+  openingHours?: string
+  wifi?: boolean
+  airConditioning?: boolean
+  noSmoking?: boolean
   category: Category
 }
 
@@ -24,6 +28,7 @@ export function LocationCard({
   category,
   averageRating,
   address,
+  openingHours,
 }: LocationCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const imageUrl = images && images.length > 0
@@ -73,7 +78,7 @@ export function LocationCard({
 
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
           <Clock size={16} className="flex-shrink-0 text-primary/70" />
-          <span>Mở cửa: 8:00 - 22:00</span>
+          <span>Mở cửa: {openingHours}</span>
         </div>
 
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{description}</p>

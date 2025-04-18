@@ -15,4 +15,8 @@ export interface Location {
     averageRating: number;
     createdAt: string;
     updatedAt: string;
+    openingHours?: string;
+    wifi?: boolean;
+    airConditioning?: boolean;
+    noSmoking?: boolean;
 }
